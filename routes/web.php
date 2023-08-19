@@ -2,7 +2,9 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\admin\AdminLoginController;
+use App\Http\Controllers\admin\CategotyController;
 use App\Http\Controllers\admin\HomeController;
+use Illuminate\Http\Request;
 
 /*
 |--------------------------------------------------------------------------
@@ -28,7 +30,26 @@ Route::get('/', function () {
     });
     
     Route::group(['middleware' => 'admin.auth'], function(){
+
+        // Authentication Routes
         Route:: get('/dashboard', [HomeController::class, 'index'])->name('admin.dashboard');
         Route:: get('/logout', [HomeController::class, 'logout'])->name('admin.logout');
+
+        // Category Routes
+        Route:: get('/list', [CategotyController::class, 'index'])->name('categories.index');
+        Route:: get('/categories/create', [CategotyController::class, 'create'])->name('categories.create');
+        Route:: post('/categories', [CategotyController::class, 'store'])->name('categories.store');
+
+        // Get Slug
+        Route:: get('/getslug', function(Request $req) {
+            $slug = '';
+            if (!empty($req->title)) {
+                $slug = Str::slug($req->title);
+            }
+            return response()->json([
+                'status' => true,
+                'slug' => $slug
+            ]);
+        })->name('getslug');
     });
  });
