@@ -7,10 +7,10 @@
     <div class="container-fluid my-2">
         <div class="row mb-2">
             <div class="col-sm-6">
-                <h1>Create Category</h1>
+                <h1>Create Brand</h1>
             </div>
             <div class="col-sm-6 text-right">
-                <a href="{{ route('categories.index') }}" class="btn btn-primary">Back</a>
+                <a href="{{ route('brands.index') }}" class="btn btn-primary">Back</a>
             </div>
         </div>
     </div>
@@ -20,7 +20,7 @@
 <section class="content">
     <!-- Default box -->
     <div class="container-fluid">
-        <form action="" method="post" id="categoryForm" name="categoryForm">
+        <form action="" id="createBrandForm" name="createBrandForm" method="post">
             <div class="card">
                 <div class="card-body">
                     <div class="row">
@@ -40,19 +40,8 @@
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <input type="hidden" name="image_id" id="image_id" value="">
-                                <label for="image">Image</label>
-                                <div id="image" class="dropzone dz-clickable">
-                                    <div class="dz-message needsclick">
-                                        <br>Drop files here or click to upload.<br><br>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
                                 <label for="status">Status</label>
-                                <select name="status" id="status" class="form-control">
+                                <select name="status" id="Status" class="form-control">
                                     <option value="1">Active</option>
                                     <option value="0">Block</option>
                                 </select>
@@ -63,7 +52,7 @@
             </div>
             <div class="pb-5 pt-3">
                 <button type="submit" class="btn btn-primary">Create</button>
-                <a href="{{ route('categories.index') }}" class="btn btn-outline-dark ml-3">Cancel</a>
+                <a href="{{ route('brands.index')}}" class="btn btn-outline-dark ml-3">Cancel</a>
             </div>
         </form>
     </div>
@@ -73,21 +62,21 @@
 @endsection
 
 @section('customJs')
-<script>    
-    $('#categoryForm').submit(function(event) {
+<script>
+    $('#createBrandForm').submit(function(event) {
         event.preventDefault();
 
         var element = $(this);
         $('button[type=submit]').prop('disabled', true);
         $.ajax({
-            url: '{{ route("categories.store") }}',
+            url: '{{ route("brands.store") }}',
             type: 'post',
             data: element.serializeArray(),
             dataType: 'json',
             success: function(res) {
                 $('button[type=submit]').prop('disabled', false);
                 if (res["status"] == true) {
-                    window.location.href = "{{ route('categories.index') }}";
+                    window.location.href = "{{ route('brands.index') }}";
                     $('#name').removeClass('is-invalid').siblings('p').removeClass('invalid-feedback').html("");
                     $('#slug').removeClass('is-invalid').siblings('p').removeClass('invalid-feedback').html("");
 
@@ -131,29 +120,6 @@
                 }
             }
         });
-    });
-
-    Dropzone.autoDiscover = false;
-    const dropzone = $("#image").dropzone({
-        init: function() {
-            this.on('addedfile', function(file) {
-                if (this.files.length > 1) {
-                    this.removeFile(this.files[0]);
-                }
-            });
-        },
-        url: "{{ route('temp-images.create') }}",
-        maxFiles: 1,
-        paramName: 'image',
-        addRemoveLinks: true,
-        acceptedFiles: "image/jpeg,image/png,image/gif",
-        headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        },
-        success: function(file, response) {
-            $("#image_id").val(response.image_id);
-            //console.log(response)
-        }
     });
 </script>
 @endsection
