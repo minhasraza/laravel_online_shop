@@ -9,7 +9,10 @@ use App\Http\Controllers\admin\ProductController;
 use App\Http\Controllers\admin\ProductSubCategoryController;
 use App\Http\Controllers\admin\SubCategoryController;
 use App\Http\Controllers\admin\TempImagesController;
+use App\Http\Controllers\FrontController;
+use App\Http\Controllers\ShopController;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,9 +25,9 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Route::get('/', function () {
+//     return view('welcome');
+// });
 
  Route::group(['prefix' => 'admin'],function(){
 
@@ -33,7 +36,7 @@ Route::get('/', function () {
         Route:: post('/authenticate', [AdminLoginController::class, 'authenticate'])->name('admin.authenticate');
 
     });
-    
+    // Admin Pannel Routes
     Route::group(['middleware' => 'admin.auth'], function(){
 
         // Authentication Routes
@@ -89,3 +92,7 @@ Route::get('/', function () {
         })->name('getslug');
     });
  });
+
+ // Front end Routes
+ Route:: get('/', [FrontController::class, 'index'])->name('front.home');
+ Route:: get('/shop/{categorySlug?}/{subCategorySlug?}', [ShopController::class, 'index'])->name('front.shop');
