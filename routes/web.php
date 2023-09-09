@@ -9,6 +9,7 @@ use App\Http\Controllers\admin\ProductController;
 use App\Http\Controllers\admin\ProductSubCategoryController;
 use App\Http\Controllers\admin\SubCategoryController;
 use App\Http\Controllers\admin\TempImagesController;
+use App\Http\Controllers\CartController;
 use App\Http\Controllers\FrontController;
 use App\Http\Controllers\ShopController;
 use Illuminate\Http\Request;
@@ -78,6 +79,7 @@ use Illuminate\Support\Str;
         Route:: put('/products/{product}', [ProductController::class, 'update'])->name('products.update');
         Route:: delete('/products/{product}', [ProductController::class, 'destroy'])->name('products.delete');
         Route:: get('/product-sub-categories', [ProductSubCategoryController::class, 'index'])->name('product-sub-categories.index');
+        Route:: get('/get-products', [ProductController::class, 'getProducts'])->name('products.getProducts');
 
         // Get Slug
         Route:: get('/getslug', function(Request $req) {
@@ -96,3 +98,6 @@ use Illuminate\Support\Str;
  // Front end Routes
  Route:: get('/', [FrontController::class, 'index'])->name('front.home');
  Route:: get('/shop/{categorySlug?}/{subCategorySlug?}', [ShopController::class, 'index'])->name('front.shop');
+ Route:: get('/product/{slug}', [ShopController::class, 'product'])->name('front.product');
+ Route:: get('/cart', [CartController::class, 'cart'])->name('front.cart');
+ Route:: post('/add-to-cart', [CartController::class, 'addToCart'])->name('front.addToCart');

@@ -59,6 +59,8 @@ class ProductController extends Controller
             $product->sku = $request->sku;
             $product->track_qty = $request->track_qty;
             $product->description = $request->description;
+            $product->short_description = $request->short_description;
+            $product->shipping_returns = $request->shipping_returns;
             $product->barcode = $request->barcode;
             $product->qty = $request->qty;
             $product->status = $request->status;
@@ -66,6 +68,7 @@ class ProductController extends Controller
             $product->sub_category_id = $request->sub_category;
             $product->brand_id = $request->brand;
             $product->is_featured = $request->is_featured;
+            $product->related_products = (!empty($request->related_products)) ? implode(',', $request->related_products) : '';
             $product->save();
 
 
@@ -123,6 +126,15 @@ class ProductController extends Controller
     public function edit($id, Request $request){    
         $product = Product::find($id);
         $subCategories = SubCategory::where('category_id',$product->category_id)->get();
+        
+        // fetch related products
+        $relatedProducts = [];
+        if ($product->related_products != '') {
+            $productArray = explode(',',$product->related_products);
+
+            $relatedProducts = Product::whereIn('id', $productArray)->get();
+        }
+
         $data = [];
         $data['subCategories'] =  $subCategories;
         $data['product'] = $product;
@@ -130,6 +142,7 @@ class ProductController extends Controller
         $brands = Brand::orderBy('name', 'ASC')->get();
         $data['categories'] = $categories;
         $data['brands'] = $brands;
+        $data['relatedProducts'] = $relatedProducts;
         return view('admin.products.edit',$data);
     }
 
@@ -142,7 +155,6 @@ class ProductController extends Controller
                 'notFound' => true,
             ]);
         }
-        // $subCategories = SubCategory::where('category_id',$product->category_id)->get();
         $rules = [
             'title' => 'required',
             'slug' => 'required|unique:products,slug,'.$product->id.',id',
@@ -167,6 +179,8 @@ class ProductController extends Controller
             $product->sku = $request->sku;
             $product->track_qty = $request->track_qty;
             $product->description = $request->description;
+            $product->short_description = $request->short_description;
+            $product->shipping_returns = $request->shipping_returns;
             $product->barcode = $request->barcode;
             $product->qty = $request->qty;
             $product->status = $request->status;
@@ -174,6 +188,7 @@ class ProductController extends Controller
             $product->sub_category_id = $request->sub_category;
             $product->brand_id = $request->brand;
             $product->is_featured = $request->is_featured;
+            $product->related_products = (!empty($request->related_products)) ? implode(',', $request->related_products) : '';
             $product->save();
 
 
@@ -253,6 +268,24 @@ class ProductController extends Controller
         return response()->json([
             'status' => true,
             'message' => 'Product deleted successfullt'
+        ]);
+    }
+
+    public function getProducts(Request $request){
+
+        $tempProduct = [];
+        if ($request->term != "") {
+            $products = Product::where('title','like','%'.$request->term.'%')->get();
+            if ($products != null) {
+                foreach ($products as $product) {
+                    $tempProduct[] = array('id' => $product->id, 'text' => $product->title);
+                }
+            }
+        }
+
+        return response()->json([
+            'tags' => $tempProduct,
+            'status' => true
         ]);
     }
 }

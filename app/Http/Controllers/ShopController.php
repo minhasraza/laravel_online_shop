@@ -72,4 +72,24 @@ class ShopController extends Controller
 
         return view('front-end.shop', $data);
     }
+
+    public function product($slug){
+        $product = Product::where('slug',$slug)->with('product_images')->first();
+        if ($product == null) {
+            abort('404');
+        }
+
+        // fetch related products
+        $relatedProducts = [];
+        if ($product->related_products != '') {
+            $productArray = explode(',',$product->related_products);
+
+            $relatedProducts = Product::whereIn('id', $productArray)->with('product_images')->get();
+        }
+
+        $data['product'] = $product;
+        $data['relatedProducts'] = $relatedProducts;
+
+        return view('front-end.product',$data);
+    }
 }
