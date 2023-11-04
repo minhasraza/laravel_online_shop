@@ -123,7 +123,8 @@ class ProductController extends Controller
         }
     }
 
-    public function edit($id, Request $request){    
+    public function edit($id, Request $request){
+
         $product = Product::find($id);
         $subCategories = SubCategory::where('category_id',$product->category_id)->get();
         
@@ -131,10 +132,10 @@ class ProductController extends Controller
         $relatedProducts = [];
         if ($product->related_products != '') {
             $productArray = explode(',',$product->related_products);
-
+            
             $relatedProducts = Product::whereIn('id', $productArray)->get();
         }
-
+        
         $data = [];
         $data['subCategories'] =  $subCategories;
         $data['product'] = $product;

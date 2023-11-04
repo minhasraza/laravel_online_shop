@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Order;
+use App\Models\OrderItem;
 use App\Models\User;
+use App\Models\Wishlist;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -57,6 +60,11 @@ class AuthController extends Controller
 
         if ($validator->passes()) {
             if (Auth::attempt(['email' => $request->email, 'password' => $request->password],$request->get('remember'))) {
+
+                if (session()->has('url.intended')) {                
+                    return redirect(session()->get('url.intended'));
+                }
+
                 return redirect()->route('account.profile');
             }else{
                 // session()->flash('error', 'Either email or password is incorrect.');
@@ -76,5 +84,53 @@ class AuthController extends Controller
     public function logout(){
         Auth::logout();
         return redirect()->route('account.login')->with('success', 'You successfully logout');
+    }
+
+    public function orders(){
+
+        $user = Auth::user();
+        $orders = Order::where('user_id', $user->id)->orderBy('created_at', 'DESC')->get();
+
+        $data['orders'] = $orders;
+
+        return view('front-end.account.order', $data);
+    }
+
+    public function orderDetail($id){
+        $data = [];
+        $user = Auth::user();
+        $order = Order::where('user_id', $user->id)->where('id', $id)->first();
+        $data['order'] = $order;
+
+        $orderItems = OrderItem::where('order_id', $id)->get();
+        $data['orderItems'] = $orderItems;
+
+        $orderItemsCount = OrderItem::where('order_id', $id)->count();
+        $data['orderItemsCount'] = $orderItemsCount;
+
+        return view('front-end.account.order-detail', $data);
+    }
+
+    public function wishlist(){
+        $wishlists = Wishlist::where('user_id',Auth::user()->id)->with('product')->get();
+        $data['wishlists'] = $wishlists;
+        return view('front-end.account.wishlist', $data);
+    }
+
+    public function removeProductFromWishlist(Request $request){
+        $wishlist = Wishlist::where('user_id', Auth::user()->id)->where('product_id',$request->product_id)->first();
+        if ($wishlist == null) {
+
+            session()->flash('error','Product already removed');
+            return response()->json([
+                'status' => true,
+            ]);
+        } else{
+            Wishlist::where('user_id', Auth::user()->id)->where('product_id',$request->product_id)->delete();
+            session()->flash('success','Product removed sucessfully');
+            return response()->json([
+                'status' => true,
+            ]);
+        }
     }
 }
