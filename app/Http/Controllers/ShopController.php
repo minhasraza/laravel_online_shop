@@ -8,6 +8,8 @@ use App\Models\Product;
 use App\Models\SubCategory;
 use Illuminate\Http\Request;
 
+use function Laravel\Prompts\search;
+
 class ShopController extends Controller
 {
     public function index(Request $request, $categorySlug = null, $subCategorySlug = null){
@@ -44,6 +46,10 @@ class ShopController extends Controller
             } else{
                 $products = $products->whereBetween('price',[intval($request->get('price_min')), intval($request->get('price_max'))]);
             }
+        }
+
+        if (!empty($request->get('search'))) {
+            $products = $products->where('title', 'like', '%' .$request->get('search'). '%');
         }
 
         if ($request->get('sort') != '') {
@@ -84,7 +90,7 @@ class ShopController extends Controller
         if ($product->related_products != '') {
             $productArray = explode(',',$product->related_products);
 
-            $relatedProducts = Product::whereIn('id', $productArray)->with('product_images')->get();
+            $relatedProducts = Product::whereIn('id', $productArray)->where('status', 1)->get();
         }
 
         $data['product'] = $product;

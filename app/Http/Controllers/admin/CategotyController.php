@@ -13,7 +13,7 @@ use Image;
 class CategotyController extends Controller
 {
     public function index(Request $request){
-        $categories = Category::latest();
+                $categories = Category::latest();
         
         if (!empty($request->get('keyword'))) {
             $categories = $categories->where('name', 'like', '%'.($request->get('keyword').'%'));
